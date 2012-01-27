@@ -9,6 +9,7 @@
 #if __has_feature(objc_arc)
 
 // Extending NSObject
+#import <objc/message.h>
 #import <Foundation/Foundation.h>
 
 // Make reference to a Person and PhoneNumber before they exist
@@ -23,13 +24,44 @@
 // More on ARC from the compiler team : http://clang.llvm.org/docs/AutomaticReferenceCounting.html
 //
 //  @property (nonatomic,strong) NSString *thingy;
+//@property (nonatomic, strong) PhoneNumber *phoneNumber;
 @end
+
 
 @interface PhoneNumber : NSObject
   // We would explicitly tell the ARC system that we want a weak reference to Person
   // ie: don't keep the Person around if it's only retained reference is weak
   @property (nonatomic, weak) Person *owner;
+  @property (nonatomic, strong) NSString *countryCode;
+  @property (nonatomic, strong) NSString *areaCode;
+  @property (nonatomic, strong) NSString *digits;
 @end
+
+@implementation PhoneNumber
+
+@synthesize owner;
+@synthesize countryCode=_countryCode, areaCode=_areaCode, digits=_digits;
+
+- (id)initWithCountryCode:(NSString *)countryCode areaCode:(NSString *)areaCode digits:(NSString *)digits {
+  self = [super init];
+  if (self) {
+    _countryCode = countryCode;
+    _areaCode = areaCode;
+    _digits = digits;
+  }
+  return self;
+}
+
+@end
+
+@implementation Person
+
+-(void)setPhoneNumber:(PhoneNumber *)phoneNumber {
+  phoneNumber.owner = self;
+}
+
+@end
+
 
 #import "Kiwi.h"
 SPEC_BEGIN(AboutARC)
@@ -47,6 +79,8 @@ describe(@"About Automatic Reference Counting", ^{
     });
     it(@"can be initalized with area code and digits and countryCode without an owner", ^{
       
+      [phoneNumber shouldNotBeNil];
+      
       [[theValue(phoneNumber.areaCode) should] equal:theValue(@"604")];
       [[theValue(phoneNumber.digits) should] equal:theValue(@"334-3244")];
       [[theValue(phoneNumber.countryCode) should] equal:theValue(@"1")];
@@ -61,9 +95,21 @@ describe(@"About Automatic Reference Counting", ^{
       [[phoneNumber.owner should] beIdenticalTo:aPerson];    
     });
     it(@"arc disables retain",^{
-      // [phoneNumber retain];
+      // error: ARC forbids explicit message send of 'retain'
+//      [phoneNumber retain];
+
+      // ARC forbids use of 'retain' in a @selector
+//      [phoneNumber performSelector:@selector(retain)];      
+
       // bypassing ARC  will create memory leaks
-      //[phoneNumber performSelector:NSSelectorFromString(@"retain")];      
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+      [phoneNumber performSelector:NSSelectorFromString(@"retain")];      
+      [phoneNumber performSelector:NSSelectorFromString(@"release")];      
+#pragma clang diagnostic pop      
+      
+      objc_msgSend(phoneNumber, NSSelectorFromString(@"retain"));
+      objc_msgSend(phoneNumber, NSSelectorFromString(@"release"));
     });
   });
   

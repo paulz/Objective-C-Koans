@@ -13,11 +13,11 @@ SPEC_BEGIN(AboutValueAssertions)
 describe(@"Value Assertions", ^{
   
   it(@"can assert truth", ^{
-    [[theValue(NO) should] beTrue];
+    [[theValue(YES) should] beTrue];
   });
   
   it(@"can assert lies", ^{
-    [[theValue(YES) should] beFalse];
+    [[theValue(NO) should] beFalse];
   });
   
   context(@"can assert equality", ^{
@@ -29,60 +29,62 @@ describe(@"Value Assertions", ^{
     });
     
     it(@"in an ugly way", ^{
-      [[theValue(actualValue == 3) should] beTrue];    
+      [[theValue(actualValue == 2) should] beTrue];    
     });
     
     it(@"in a pretty way", ^{
-      [[theValue(actualValue) should] equal:theValue(3)];
+      [[theValue(actualValue) should] equal:theValue(2)];
     });
     
   });
   
   it(@"can assert that a variable contains nil", ^{
-    NSObject *object = [NSObject new];
+    NSObject *object = nil;
     [object shouldBeNil];
   });
   
   it(@"can assert that a variable does not contains nil", ^{
-    NSObject *object = nil;
+    NSObject *object = [NSObject new];
     [object shouldNotBeNil];
   });
   
   it(@"can assert that two objects are equal", ^{
-    [[@"Panda" should] equal:@"Panda1"];
+    [[@"Panda" should] equal:@"Panda"];
   });
   
   it(@"can assert that two objects are not equal", ^{
-    [[@"Panda" shouldNot] equal:@"Panda"];
+    [[@"Panda" shouldNot] equal:@"Panda1"];
   });
   
   it(@"can assert that floating point values are equal within a delta", ^{
     //NOTE: float vs double precsion is what makes this fail
-    [[theValue(22.0f/7.0f) should] equal:(22.0/7.0) withDelta:0.000f];
+    [[theValue(22.0f/7.0f) should] equal:(22.0/7.0) withDelta:0.001f];
   });
   
   it(@"can assert that a value is within a range", ^{
-    [[theValue(4) should] beWithin:theValue(4) of:theValue(9)];
+    [[theValue(4) should] beWithin:theValue(5) of:theValue(9)];
   });
   
   it(@"can assert that a value is less than another value", ^{
-    [[theValue(4) should] beLessThan:theValue(4)];
+    [[theValue(4) should] beLessThan:theValue(5)];
   });
   
   it(@"can assert that a value is greater than another value", ^{
-    [[theValue(4) should] beGreaterThan:theValue(4)];
+    [[theValue(4) should] beGreaterThan:theValue(3)];
   });
   
   it(@"can assert that a value is less than or equal to another value", ^{
-    [[theValue(4) should] beLessThanOrEqualTo:theValue(3)];
+    [[theValue(4) should] beLessThanOrEqualTo:theValue(4)];
+    [[theValue(4) should] beLessThanOrEqualTo:theValue(5)];
   });
   
   it(@"can assert that a value is greater than or equal to another value", ^{
-    [[theValue(4) should] beGreaterThanOrEqualTo:theValue(5)];
+    [[theValue(4) should] beGreaterThanOrEqualTo:theValue(4)];
+    [[theValue(4) should] beGreaterThanOrEqualTo:theValue(3)];
   });
   
   it(@"can assert that a value is between to values", ^{
-    [[theValue(4) should] beBetween:theValue(5) and:theValue(6)];
+    [[theValue(4) should] beBetween:theValue(3) and:theValue(5)];
   });  
   
   it(@"can assert two variable contain the same pointer", ^{
@@ -94,7 +96,8 @@ describe(@"Value Assertions", ^{
 
     NSString *panda = @"panda";
     NSString *samePanda = [panda mutableCopy];
-    [[panda should] beIdenticalTo:samePanda];
+    [[panda should] beIdenticalTo:panda];
+    [[panda shouldNot] beIdenticalTo:samePanda];
   });
 
 });

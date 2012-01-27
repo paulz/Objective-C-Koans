@@ -14,12 +14,12 @@ describe(@"NSArray", ^{
   
   it(@"can be created with no arguments and be empty", ^{
     NSArray *panda = [NSArray array];
-    [[theValue([panda count]) should] equal:theValue(1)];
+    [[theValue([panda count]) should] equal:theValue(0)];
   });
   
   it(@"can be created with a nil terminated list of heterogeneous Objects", ^{
    NSArray *panda = [NSArray arrayWithObjects:@"one",@"two", [NSNumber numberWithInt:3],nil];
-    [[theValue([panda count]) should] equal:theValue(1)];
+    [[theValue([panda count]) should] equal:theValue(3)];
   });
     
 });
